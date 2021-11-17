@@ -8,20 +8,22 @@
 /*
  * Your dashboard ViewModel code goes here
  */
-define(['knockout', "ojs/ojdataprovider", 'ojs/ojtable', 'ojs/ojpagingcontrol', 'ojs/ojmodel', 'ojs/ojpagingtabledatasource', 
-        'ojs/ojarraytabledatasource', 'ojs/ojcollectiontabledatasource'],
- function(ko, ojdataprovider) {
+define(['knockout', "ojs/ojconverter-datetime", "ojs/ojconverterutils-i18n", 
+        "ojs/ojdataprovider", 'ojs/ojtable', 'ojs/ojpagingcontrol', 
+        'ojs/ojmodel', 'ojs/ojpagingtabledatasource', 
+        'ojs/ojarraytabledatasource', 'ojs/ojcollectiontabledatasource',
+        'ojs/ojvalidation-datetime'],
+ function(ko,  ojconverter_datetime_1, ojconverterutils_i18n_1) {
      
-    function DashboardViewModel() {
+    function StudentsViewModel() {
       // Below are a set of the ViewModel methods invoked by the oj-module component.
-      // Please reference the oj-module jsDoc for additional information.
+      // Please reference the oj-module jsDoc for additional information.        
 
         var self = this;
-
+                
         self.studentData = ko.observable();
         self.pagingDatasource = ko.observable(new oj.PagingTableDataSource(new oj.ArrayTableDataSource([])));
-        
-        
+                
         self.filter = ko.observable("");        
 
         self.parseStudentResponse = function(response) {
@@ -30,8 +32,8 @@ define(['knockout', "ojs/ojdataprovider", 'ojs/ojtable', 'ojs/ojpagingcontrol', 
                 'id': response.id,
                 'rut': response.rut,
                 'name': response.name,
-                'birth': response.birth,
-                'genre': response.genre,                
+                'birth': self.getStringFromDate(response.birth, 'dd-MMM-yyyy'),
+                'gender': response.gender,                
             };
         };
 
@@ -49,7 +51,7 @@ define(['knockout', "ojs/ojdataprovider", 'ojs/ojtable', 'ojs/ojpagingcontrol', 
         self.getStudentModel = function() {
             
             const StudentModel = oj.Model.extend({
-                //parse: self.parseStudentResponse,
+                parse: self.parseStudentResponse,
                 idAttribute: 'id'
             });
             return new StudentModel();
@@ -111,7 +113,19 @@ define(['knockout', "ojs/ojdataprovider", 'ojs/ojtable', 'ojs/ojpagingcontrol', 
         self.handleValueChanged = () => {            
             self.filter(document.getElementById("filter").rawValue);                                          
             self.studentData().refresh();                                    
-        };        
+        };   
+        
+        self.getConverter = function(pattern) {
+            return oj.Validation.converterFactory(oj.ConverterFactory.CONVERTER_TYPE_DATETIME).createConverter({
+                pattern
+            });
+        }
+        
+        self.getStringFromDate = function(date, format) {
+            const converter = self.getConverter(format);
+            const newDate = new Date(date);
+            return converter.format(oj.IntlConverterUtils.dateToLocalIso(newDate));
+        };
         
     }
 
@@ -120,6 +134,6 @@ define(['knockout', "ojs/ojdataprovider", 'ojs/ojtable', 'ojs/ojpagingcontrol', 
      * return a constructor for the ViewModel so that the ViewModel is constructed
      * each time the view is displayed.
      */
-    return DashboardViewModel;
+    return StudentsViewModel;
   }
 );
