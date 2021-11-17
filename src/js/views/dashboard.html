@@ -1,0 +1,23 @@
+<!--
+ Copyright (c) 2014, 2021, Oracle and/or its affiliates.
+ Licensed under The Universal Permissive License (UPL), Version 1.0
+ as shown at https://oss.oracle.com/licenses/upl/
+ -->
+<div class="oj-hybrid-padding">
+  <h1>Students</h1>
+  <div>
+      To change the content of this section, you will make edits to the dashboard.html file located in the /js/views folder.
+  </div>
+  <br/>
+  <div aria-labelledby="grouplabel1">
+    <oj-input-text id="filter" class="oj-form-control-max-width-md" label-hint="Filter" label-edge="inside"
+     placeholder="Type to filter" on-raw-value-changed="[[handleValueChanged]]"
+     value="{{filter}}" clear-icon="always" style="max-width:30em">                         
+    </oj-input-text>    
+  </div> 
+  <div id="tableWrapper" class="oj-xl-9 oj-lg-9 oj-md-12 oj-sm-12 oj-flex-item oj-flex">  
+           <oj-table id='studentTable' aria-label='student table' data='[[pagingDatasource]]'
+                columns='[[studentColumns]]' style='width: 100%;'/>
+    <oj-paging-control id="paging" data='[[pagingDatasource]]' page-size='5' slot='bottom'/>
+  </div>
+</div>
