@@ -70,6 +70,8 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
       this.appName = ko.observable("Students Web");
       // User Info used in Global Navigation area
       this.userLogin = ko.observable("john.hancock@oracle.com");
+      
+      this.contextPath = "http://localhost:8080/api";
 
       // Footer
       this.footerLinks = [

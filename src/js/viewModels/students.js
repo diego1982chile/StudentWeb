@@ -13,19 +13,40 @@ define(['knockout', "ojs/ojconverter-datetime", "ojs/ojconverterutils-i18n",
         'ojs/ojmodel', 'ojs/ojpagingtabledatasource', 
         'ojs/ojarraytabledatasource', 'ojs/ojcollectiontabledatasource',
         'ojs/ojvalidation-datetime'],
- function(ko,  ojconverter_datetime_1, ojconverterutils_i18n_1) {
+ function(ko) {
      
     function StudentsViewModel() {
       // Below are a set of the ViewModel methods invoked by the oj-module component.
       // Please reference the oj-module jsDoc for additional information.        
 
         var self = this;
-                
+        
+        //Se utiliza common model para definir el modelo 
+        //y se especifica una url custom para el llamado a la API
+        
         self.studentData = ko.observable();
         self.pagingDatasource = ko.observable(new oj.PagingTableDataSource(new oj.ArrayTableDataSource([])));
                 
         self.filter = ko.observable("");        
 
+        self.studentColumns = [
+            { headerText: 'Rut', field: 'rut' },
+            { headerText: 'Name', field: 'name' },
+            { headerText: 'Birth', field: 'birth' },
+            { headerText: 'Gender', field: 'gender' }            
+        ];
+
+        //Definición del modelo (single row)
+        self.getStudentModel = function() {
+            
+            const StudentModel = oj.Model.extend({
+                parse: self.parseStudentResponse,
+                idAttribute: 'id'
+            });
+            
+            return new StudentModel();
+        };
+        
         self.parseStudentResponse = function(response) {
             
             return {
@@ -37,26 +58,7 @@ define(['knockout', "ojs/ojconverter-datetime", "ojs/ojconverterutils-i18n",
             };
         };
 
-        self.rootResponseParser = function(response) {
-            return response.items;
-        };
-
-        self.studentColumns = [
-            { headerText: 'Rut', field: 'rut' },
-            { headerText: 'Name', field: 'name' },
-            { headerText: 'Birth', field: 'birth' },
-            { headerText: 'Gender', field: 'gender' }            
-        ];
-
-        self.getStudentModel = function() {
-            
-            const StudentModel = oj.Model.extend({
-                parse: self.parseStudentResponse,
-                idAttribute: 'id'
-            });
-            return new StudentModel();
-        };
-
+        //Definición de la colección (multiples rows)
         self.getStudentCollection = function() {                        
             
             const StudentCollection = oj.Collection.extend({
@@ -74,23 +76,28 @@ define(['knockout', "ojs/ojconverter-datetime", "ojs/ojconverterutils-i18n",
                 };
             };
             
-            returnCollection.customURL = function(operation, collection, options) {
-                console.log(options);                                
+            // Se especifica url custom para capturar los parámetros que se 
+            // incluirán en el objeto pageRequest
+            returnCollection.customURL = function(operation, collection, options) {                                               
                 
+                // Obtener especificaciones de búsqueda para armar objeto pageRequest
                 const page = options.startIndex > 0 ? (options.startIndex / options.fetchSize) : 0;                
-                const requestBody = { page: page, fetchSize: options.fetchSize };
+                
+                const myPageRequest = { page: page, fetchSize: options.fetchSize };
                 
                 if(options.sort) {
-                    requestBody.sort = options.sort;
-                    requestBody.sortDir = options.sortDir;
+                    myPageRequest.sort = options.sort;
+                    myPageRequest.sortDir = options.sortDir;
                 }
                 
+                // La cadena de búsqueda no viene en options, se rescata 
+                // directamente desde el observable asociado al filtro
                 if (self.filter() && self.filter() !== "") {
-                    requestBody.filter = self.filter();
+                    myPageRequest.filter = self.filter();
                 }
                 
                 return {
-                    url: 'http://localhost:8080/api/students',
+                    url: ko.dataFor(document.getElementById('globalBody')).contextPath + '/students',
                     type: 'POST',
                     contentType: 'application/json',
                     /*
@@ -98,29 +105,39 @@ define(['knockout', "ojs/ojconverter-datetime", "ojs/ojconverterutils-i18n",
                         xhr.setRequestHeader('Authorization', 'Basic UFNDX1NVUEVSVVNFUjpXZWxjb21lMQ==');
                     },
                     */
-                    data: JSON.stringify(requestBody)
+                    data: JSON.stringify(myPageRequest)
                 };
             };
             return returnCollection;
         }
         
+        self.rootResponseParser = function(response) {
+            return response.items;
+        };
+        
+        // Actualiza el datasource ante cualquier evento, ie: paginación, ordenamiento (excepto filtro)
         self.pagingDatasource = ko.computed(function () {
             //alert("buildCollection");           
             self.studentData(self.getStudentCollection());
             return new oj.PagingTableDataSource(new oj.CollectionTableDataSource(self.studentData()));                                       
         });                                
         
+        // Listener para el evento filtrar
         self.handleValueChanged = () => {            
+            // Se actualiza el valor del filtro
             self.filter(document.getElementById("filter").rawValue);                                          
+            // Se realiza un refresh de la colección para disparar llamado a API
             self.studentData().refresh();                                    
         };   
         
+        // Funciones para el formato de fechas
         self.getConverter = function(pattern) {
             return oj.Validation.converterFactory(oj.ConverterFactory.CONVERTER_TYPE_DATETIME).createConverter({
                 pattern
             });
         }
         
+        // Funciones para el formato de fechas
         self.getStringFromDate = function(date, format) {
             const converter = self.getConverter(format);
             const newDate = new Date(date);
