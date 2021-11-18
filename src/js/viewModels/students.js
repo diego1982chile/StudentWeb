@@ -13,6 +13,7 @@ define(['knockout', "ojs/ojconverter-datetime", "ojs/ojconverterutils-i18n",
         'ojs/ojmodel', 'ojs/ojpagingtabledatasource', 
         'ojs/ojarraytabledatasource', 'ojs/ojcollectiontabledatasource',
         'ojs/ojvalidation-datetime'],
+    
  function(ko) {
      
     function StudentsViewModel() {
@@ -29,6 +30,7 @@ define(['knockout', "ojs/ojconverter-datetime", "ojs/ojconverterutils-i18n",
                 
         self.filter = ko.observable("");        
 
+        //Definición columnas tabla de alumnos
         self.studentColumns = [
             { headerText: 'Rut', field: 'rut' },
             { headerText: 'Name', field: 'name' },
