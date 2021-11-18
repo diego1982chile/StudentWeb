@@ -5,9 +5,25 @@ Frontend para API StudentService
 Se trata de un proyecto Oracle Jet por lo que se necesita:
 
 - Node.js 5+ y npm
-- Para instalar el cli de Oracle Jet ejecutar el siguiente comando:
+- Para instalar el CLI de Oracle Jet ejecutar el siguiente comando:
 
-  npm -g install @oracle/ojet-cli
+    npm -g install @oracle/ojet-cli
   
  - Descargar el proyecto desde el repositorio y descomprimir
- - Los IDEs recomendados para abrir el proyecto son NetBeans 11+ o Visual Studio Code
+ - Si se desea visualizar el proyecto mediante un IDE los IDEs recomendados son NetBeans 11+ o Visual Studio Code
+ - Sincronizar las dependencias del proyecto. Dirigirse a la raiz del proyecto y ejecutar el siguiente comando:
+   
+    ojet restore
+
+# Run
+
+Ejecutar el siguiente comando para servir la aplicación utilizando node.js
+
+    ojet serve
+
+# Build
+
+Opcionalmente el proyecto se puede empaquetar en un war mediante el siguiente comando el cual es generado en la carpeta
+/dist
+
+    ojet build --release
