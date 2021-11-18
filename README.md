@@ -27,3 +27,8 @@ Opcionalmente el proyecto se puede empaquetar en un war (generado en la carpeta 
 ```
     ojet build --release
 ```
+
+# Nota
+
+La URL de la api esta definida utilizando localhost, si se desea cambiar, modificar la variable contextPath en el
+archivo src/js/appController.js
